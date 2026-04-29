@@ -1,0 +1,406 @@
+/* =========================================
+   1. SISTEMA DE VARIABLES (Rúbrica 1.1.3)
+   ========================================= */
+:root {
+    /* Tonos lilas y rosas con alto contraste para WCAG AA */
+    --flor-oscura: #6A1B9A;      /* Lila oscuro para textos principales */
+    --flor-vibrante: #D81B60;    /* Rosa fuerte para botones y acentos */
+    --flor-pastel: #FCE4EC;      /* Rosa muy pálido para fondos de tarjetas */
+    --fondo-app: #FAFAFA;        /* Blanco roto para no cansar la vista */
+    --texto-secundario: #4A4A4A; 
+}
+
+body {
+    background-color: var(--fondo-app);
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    color: var(--texto-secundario);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--flor-oscura);
+}
+/* =========================================
+   2. TARJETAS Y ANIMACIONES SUTILES
+   ========================================= */
+.card {
+    border-radius: 12px;
+    background-color: var(--flor-pastel);
+    border: 1px solid rgba(106, 27, 154, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Efecto de elevación al pasar el mouse */
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(216, 27, 96, 0.15) !important;
+}
+
+/* =========================================
+   3. BOTONES Y ACCESIBILIDAD (FOCUS)
+   ========================================= */
+.btn-primary {
+    background-color: var(--flor-vibrante);
+    border-color: var(--flor-vibrante);
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-primary:hover, .btn-primary:active {
+    background-color: var(--flor-oscura);
+    border-color: var(--flor-oscura);
+}
+
+/* El delineado obligatorio para accesibilidad por teclado */
+.btn:focus, input:focus, select:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(106, 27, 154, 0.4) !important;
+}
+
+/* Estilo especial para el número del cronómetro */
+.timer-display {
+    color: var(--flor-oscura);
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.05);
+}
+/* =========================================
+   4. COMPONENTES GLOBALES
+   ========================================= */
+
+
+.navbar-brand .text-primary {
+    color: var(--flor-pastel) !important;
+}
+
+.text-primary {
+    color: var(--flor-vibrante) !important;
+}
+
+/* Barra de progreso de hipopresivos */
+.progress-bar {
+    background-color: var(--flor-vibrante) !important;
+}
+
+/* =========================================
+   5. ELEMENTOS FLOTANTES
+   ========================================= */
+.hero-section {
+    /* Degradado sutil de fondo combinando tus variables */
+    background: linear-gradient(135deg, var(--fondo-app) 0%, var(--flor-pastel) 100%);
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+}
+
+.hero-title {
+    color: var(--flor-oscura);
+    letter-spacing: -1px;
+    line-height: 1.1;
+}
+
+.hero-title .text-primary {
+    color: var(--flor-vibrante) !important;
+}
+
+/* --- Contenedor Visual y Posicionamiento Absoluto --- */
+.hero-visual-col {
+    height: 500px;
+}
+
+.floating-item {
+    position: absolute;
+    object-fit: cover;
+    /* La animación dura 6 segundos y se repite infinitamente */
+    animation: float 6s ease-in-out infinite; 
+}
+
+/* Configuraciones individuales para romper la simetría */
+.item-1 {
+    top: 0%;
+    left: 5%;
+    width: 360px;
+    animation-delay: 0s;
+}
+
+.item-2 {
+    top: 60%;
+    right: 5%;
+    width: 440px;
+    transform: rotate(8deg); /* Inclinación tipo foto polaroid */
+    animation-delay: -2s; /* Empieza en otro punto de la animación */
+}
+
+.item-3 {
+    bottom: 45%;
+    left: 38%;
+    width: 440px;
+    animation-delay: -4s;
+}
+
+/* --- La Animación CSS Clave --- */
+@keyframes float {
+    0% {
+        transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+        /* Sube 20px y gira ligeramente para dar sensación de ingravidez */
+        transform: translateY(-20px) rotate(3deg); 
+    }
+    100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+}
+/* =========================================
+   6. SECCIÓN DE METODOLOGÍA (TARJETAS)
+   ========================================= */
+.methodology-section {
+    background-color: #FFFFFF;
+}
+
+.max-w-700 {
+    max-width: 700px;
+}
+
+/* Contenedor del Icono */
+.icon-wrapper {
+    width: 70px;
+    height: 70px;
+    background-color: var(--color-flor-oscura) !important; /* Lila oscuro por defecto */
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Efectos de la Tarjeta al pasar el mouse */
+.method-card {
+    background-color: var(--color-fondo-app);
+    border: 1px solid rgba(106, 27, 154, 0.05) !important;
+    transition: all 0.3s ease;
+    cursor: default;
+}
+
+.method-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 35px rgba(106, 27, 154, 0.1) !important;
+    border-color: var(--color-flor-pastel) !important;
+}
+
+/* Animación del icono al tocar la tarjeta */
+.method-card:hover .icon-wrapper {
+    background-color: var(--color-flor-vibrante) !important; /* Cambia a rosa brillante */
+    transform: scale(1.1) rotate(10deg);
+}
+
+.method-card:hover .text-primary-fusion {
+    color: var(--color-flor-oscura) !important;
+}
+
+/* =========================================
+   7. HERRAMIENTAS INTERACTIVAS (FORMULARIOS Y UI)
+   ========================================= */
+
+/* 7.1 Formularios (Calculadora Kcal) */
+
+/* Sobrescribir el borde y sombra azul genérica de Bootstrap al hacer clic */
+.form-control:focus, .form-select:focus {
+    border-color: var(--color-flor-vibrante) !important;
+    box-shadow: 0 0 0 0.25rem rgba(216, 27, 96, 0.2) !important;
+    background-color: #ffffff !important;
+}
+
+/* Suavizar el aspecto base de los inputs */
+.form-control, .form-select {
+    color: var(--color-dark-fusion);
+    border-radius: 8px; /* Bordes ligeramente más curvos */
+    transition: all 0.3s ease;
+}
+
+.form-label {
+    color: var(--color-flor-oscura);
+    letter-spacing: 0.5px;
+}
+
+/* 7.2 Tarjetas de las Herramientas */
+
+/* Sombra premium para las tarjetas (más suave y teñida de lila) */
+#herramienta-kcal .card, #herramienta-hipopresivos .card {
+    box-shadow: 0 20px 40px rgba(106, 27, 154, 0.08) !important;
+    border: 1px solid rgba(106, 27, 154, 0.05) !important;
+}
+
+/* 7.3 Temporizador Hipopresivo */
+
+/* Estilo para el número gigante del cronómetro */
+.timer-display {
+    color: var(--color-flor-oscura) !important;
+    text-shadow: 2px 4px 10px rgba(106, 27, 154, 0.1);
+    letter-spacing: -2px;
+}
+
+/* Forzar que la barra de progreso use tu color rosa vibrante */
+.progress-bar.bg-fusion {
+    background-color: var(--color-flor-vibrante) !important;
+}
+
+/* Iconos de las listas de instrucciones */
+.list-unstyled i {
+    font-size: 1.2rem;
+    vertical-align: middle;
+}
+/* 7.4 Tabla de Registro Interactiva */
+#herramienta-registro .table-hover tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+#herramienta-registro .table-hover tbody tr:hover {
+    background-color: var(--color-flor-pastel) !important;
+}
+
+#herramienta-registro .card-header {
+    background-color: var(--color-fondo-app);
+}
+/* Fix para asegurar que los badges de sección siempre tengan texto blanco visible */
+.badge.bg-fusion, .badge[style*="var(--flor-oscura)"] {
+    color: #ffffff !important;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Estilo para los inputs del formulario pequeño */
+#herramienta-registro .form-control-sm {
+    padding: 0.6rem;
+    font-size: 0.85rem;
+}
+
+/* Efecto en las filas de la tabla */
+#herramienta-registro tr {
+    border-bottom: 1px solid rgba(106, 27, 154, 0.03);
+}
+
+#herramienta-registro tr:last-child {
+    border-bottom: none;
+}
+
+/* =========================================
+   8. FOOTER Y ACCESIBILIDAD OSCURA (CORREGIDO)
+   ========================================= */
+
+/* Resplandor de la marca y títulos */
+.text-primary-fusion {
+    color: var(--flor-vibrante) !important;
+}
+
+/* Borde superior del footer */
+.border-fusion {
+    border-color: var(--flor-vibrante) !important;
+}
+
+/* Enlaces de Navegación */
+.footer-links a {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+}
+
+.footer-links a:hover {
+    color: var(--flor-vibrante);
+    padding-left: 5px; 
+}
+
+/* --- Iconos de Redes Sociales --- */
+.footer-social-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff !important; 
+    border-radius: 50%;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-decoration: none;
+}
+
+.footer-social-icon:hover {
+    background-color: var(--flor-vibrante);
+    color: #ffffff !important;
+    transform: translateY(-5px) scale(1.1);
+    box-shadow: 0 10px 15px rgba(216, 27, 96, 0.3);
+}
+
+/* Inputs del Newsletter en modo oscuro */
+footer .form-control::placeholder {
+    color: rgba(255, 255, 255, 0.4) !important;
+}
+
+footer .form-control:focus {
+    border-color: var(--flor-vibrante);
+    box-shadow: 0 0 0 0.25rem rgba(216, 27, 96, 0.2);
+    color: white;
+}
+
+footer .btn-fusion {
+    background-color: var(--flor-vibrante) !important;
+    border-color: var(--flor-vibrante) !important;
+}
+
+footer .btn-fusion:hover {
+    background-color: var(--flor-pastel) !important;
+    border-color: var(--flor-pastel) !important;
+    color: var(--flor-oscura) !important;
+}
+/* =========================================
+   9. IDENTIDAD DE MARCA Y LOGOTIPO
+   ========================================= */
+
+.brand-logo, .brand-footer img {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    filter: drop-shadow(0 2px 4px rgba(106, 27, 154, 0.2));
+}
+
+/* Ajuste específico para que el texto del Navbar no pierda su color al pasar el hover */
+.navbar-brand:hover {
+    color: #ffffff !important;
+}
+
+/* Ajuste específico para que el texto del Navbar reaccione con el color de acento */
+.navbar-brand:hover, .navbar-brand:hover span {
+    color: var(--flor-vibrante) !important;
+}
+
+/* =========================================
+   ESTILOS DE LA NAVBAR BLANCA
+   ========================================= */
+
+/* Ajuste del botón en móviles para que no choque con el fondo blanco */
+.navbar-toggler:focus {
+    box-shadow: none;
+    outline: 2px solid var(--flor-vibrante);
+}
+
+/* Enlaces de la barra de navegación */
+.custom-nav-link {
+    color: var(--texto-secundario) !important;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+/* Efecto Hover: Cambio de color y pequeña línea debajo */
+.custom-nav-link:hover, .custom-nav-link.active {
+    color: var(--flor-vibrante) !important;
+}
+
+.custom-nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: var(--flor-vibrante);
+    transition: width 0.3s ease;
+}
+
+.custom-nav-link:hover::after {
+    width: 100%;
+}
