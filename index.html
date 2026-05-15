@@ -469,61 +469,48 @@
                                     <i class="bi bi-plus-circle-fill text-primary-fusion me-2"></i>Nuevo Registro
                                 </h3>
                                 <form id="form-registro" class="row g-3 align-items-start" novalidate>
-                                    <div class="col-md-3 position-relative">
-                                        <label for="reg-actividad"
-                                            class="form-label small fw-bold text-dark">Actividad</label>
-                                        <input type="text" id="reg-actividad"
-                                            class="form-control form-control-sm bg-light border-0"
-                                            placeholder="Ej: Yoga..." required minlength="3" maxlength="40">
-                                        <div class="invalid-feedback"></div>
-                                    </div>
+    <div class="col-md-6 position-relative">
+        <label for="reg-actividad" class="form-label small fw-bold text-dark">Actividad</label>
+        <input type="text" id="reg-actividad" class="form-control form-control-sm bg-light border-0" placeholder="Ej: Yoga..." required minlength="3" maxlength="40">
+        <div class="invalid-feedback"></div>
+    </div>
 
-                                    <div class="col-md-2 position-relative">
-                                        <label for="reg-duracion"
-                                            class="form-label small fw-bold text-dark">Duración</label>
-                                        <input type="text" id="reg-duracion"
-                                            class="form-control form-control-sm bg-light border-0"
-                                            placeholder="Ej: 30 min" required maxlength="10">
-                                        <div class="invalid-feedback"></div>
-                                    </div>
+    <div class="col-md-6 position-relative">
+        <label for="reg-categoria" class="form-label small fw-bold text-dark">Categoría</label>
+        <select id="reg-categoria" class="form-select form-select-sm bg-light border-0" required>
+            <option value="" disabled selected>Elegir...</option>
+            <option value="Fuerza">Fuerza</option>
+            <option value="Cardio">Cardio</option>
+            <option value="Hipopresivos">Hipopresivos</option>
+            <option value="Flexibilidad">Flexibilidad</option>
+        </select>
+        <div class="invalid-feedback"></div>
+    </div>
 
-                                    <div class="col-md-2 position-relative">
-                                        <label for="reg-fecha" class="form-label small fw-bold text-dark">Fecha</label>
-                                        <input type="date" id="reg-fecha"
-                                            class="form-control form-control-sm bg-light border-0" required>
-                                        <div class="invalid-feedback"></div>
-                                    </div>
+    <div class="col-md-4 position-relative">
+        <label for="reg-fecha" class="form-label small fw-bold text-dark">Fecha</label>
+        <input type="date" id="reg-fecha" class="form-control form-control-sm bg-light border-0" required>
+        <div class="invalid-feedback"></div>
+    </div>
 
-                                    <div class="col-md-3 position-relative">
-                                        <label for="reg-categoria"
-                                            class="form-label small fw-bold text-dark">Categoría</label>
-                                        <select id="reg-categoria" class="form-select form-select-sm bg-light border-0"
-                                            required>
-                                            <option value="" disabled selected>Elegir...</option>
-                                            <option value="Fuerza">Fuerza</option>
-                                            <option value="Cardio">Cardio</option>
-                                            <option value="Hipopresivos">Hipopresivos</option>
-                                            <option value="Flexibilidad">Flexibilidad</option>
-                                        </select>
-                                        <div class="invalid-feedback"></div>
-                                    </div>
+    <div class="col-md-4 position-relative">
+        <label for="reg-duracion" class="form-label small fw-bold text-dark">Duración</label>
+        <input type="text" id="reg-duracion" class="form-control form-control-sm bg-light border-0" placeholder="Ej: 30 min" required maxlength="10">
+        <div class="invalid-feedback"></div>
+    </div>
 
-                                    <div class="col-md-2 position-relative">
-                                        <label for="reg-intensidad"
-                                            class="form-label small fw-bold text-dark">Intensidad</label>
-                                        <input type="number" id="reg-intensidad"
-                                            class="form-control form-control-sm bg-light border-0" min="1" max="10"
-                                            placeholder="1-10" required>
-                                        <div class="invalid-feedback"></div>
-                                    </div>
+    <div class="col-md-4 position-relative">
+        <label for="reg-intensidad" class="form-label small fw-bold text-dark">Intensidad</label>
+        <input type="number" id="reg-intensidad" class="form-control form-control-sm bg-light border-0" min="1" max="10" placeholder="1-10" required>
+        <div class="invalid-feedback"></div>
+    </div>
 
-                                    <div class="col-12 mt-3">
-                                        <button type="submit" id="btn-guardar-reg"
-                                            class="btn btn-primary btn-sm w-100 fw-bold shadow-sm rounded-pill py-2">
-                                            Añadir Registro
-                                        </button>
-                                    </div>
-                                </form>
+    <div class="col-12 mt-3">
+        <button type="submit" id="btn-guardar-reg" class="btn btn-primary btn-sm w-100 fw-bold shadow-sm rounded-pill py-2">
+            Añadir Registro
+        </button>
+    </div>
+</form>
                             </div>
 
                             <div class="card-body p-0">
