@@ -404,3 +404,15 @@ footer .btn-fusion:hover {
 .custom-nav-link:hover::after {
     width: 100%;
 }
+
+/* Personalizar el color de error nativo de Bootstrap */
+.invalid-feedback {
+    color: var(--flor-vibrante) !important;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+}
+
+.form-control.is-invalid {
+    border: 2px solid var(--flor-vibrante) !important;
+    background-image: none !important; /* Quita el icono feo por defecto de Bootstrap */
+}
