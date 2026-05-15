@@ -38,23 +38,23 @@ const mostrarAlerta = (titulo, mensaje, tipo = 'danger') => {
     modalInstance.show();
 };
 let historialEntrenamientos = [
-    { 
-        id: 1, 
-        actividad: "Fuerza Tren Inferior", 
-        duracion: "45 min", 
-        fecha: "2026-03-29", 
-        categoria: "Fuerza", 
-        intensidad: 8, 
-        estado: "Completado" 
+    {
+        id: 1,
+        actividad: "Fuerza Tren Inferior",
+        duracion: "45 min",
+        fecha: "2026-03-29",
+        categoria: "Fuerza",
+        intensidad: 8,
+        estado: "Completado"
     },
-    { 
-        id: 2, 
-        actividad: "Hipopresivos Nivel 1", 
-        duracion: "15 min", 
-        fecha: "2026-03-30", 
-        categoria: "Hipopresivos", 
-        intensidad: 6, 
-        estado: "Completado" 
+    {
+        id: 2,
+        actividad: "Hipopresivos Nivel 1",
+        duracion: "15 min",
+        fecha: "2026-03-30",
+        categoria: "Hipopresivos",
+        intensidad: 6,
+        estado: "Completado"
     }
 ];
 
@@ -224,9 +224,9 @@ const btnReiniciarHipo = document.getElementById('btn-reiniciar-hipo');
 const actualizarUIHipo = () => {
     // Formato de tiempo "00:00"
     displayHipo.textContent = `00:${tiempoRestanteHipo < 10 ? '0' : ''}${tiempoRestanteHipo}`;
-    
+
     const faseObj = fasesActivas[faseActualIdx];
-    
+
     // Cambios visuales dinámicos
     badgeFase.textContent = faseObj.nombre;
     badgeFase.style.backgroundColor = faseObj.color;
@@ -234,7 +234,7 @@ const actualizarUIHipo = () => {
     displayHipo.style.color = faseObj.color; // El número cambia de color
     txtInstruccion.textContent = faseObj.texto;
     txtCiclo.textContent = `Ciclo: ${cicloActual} / ${totalCiclos}`;
-    
+
     // Cálculo de la barra de progreso
     const porcentaje = ((faseObj.seg - tiempoRestanteHipo) / faseObj.seg) * 100;
     barraProgreso.style.width = `${porcentaje}%`;
@@ -244,16 +244,16 @@ const actualizarUIHipo = () => {
 // Lógica del motor del temporizador
 const cicloTemporizador = () => {
     tiempoRestanteHipo--;
-    
+
     // Transición de fase o ciclo
     if (tiempoRestanteHipo < 0) {
         faseActualIdx++;
-        
+
         // Si terminamos las 3 fases (Inhala, Exhala, Apnea)
         if (faseActualIdx >= fasesActivas.length) {
             faseActualIdx = 0;
             cicloActual++;
-            
+
             // Si terminamos todos los ciclos
             if (cicloActual > totalCiclos) {
                 terminarRutina();
@@ -276,14 +276,14 @@ const resetearEstadoHipo = () => {
     const nivelSeleccionado = selectNivel.value;
     fasesActivas = rutinasHipopresivas[nivelSeleccionado];
     totalCiclos = parseInt(selectCiclos.value);
-    
+
     faseActualIdx = 0;
     cicloActual = 1;
     tiempoRestanteHipo = fasesActivas[0].seg;
-    
+
     btnIniciarHipo.disabled = false;
     btnPausarHipo.disabled = true;
-    
+
     // Restablecer estilos a estado inactivo
     displayHipo.style.color = "var(--flor-oscura)";
     badgeFase.style.backgroundColor = "var(--flor-pastel)";
@@ -293,22 +293,22 @@ const resetearEstadoHipo = () => {
     txtCiclo.textContent = `Ciclo: 0 / ${totalCiclos}`;
     displayHipo.textContent = "00:00";
     barraProgreso.style.width = "0%";
-    
+
     // Desbloquear selectores
     selectNivel.disabled = false;
     selectCiclos.disabled = false;
 };
 
 // Eventos de los Botones
-if(btnIniciarHipo) {
+if (btnIniciarHipo) {
     btnIniciarHipo.addEventListener('click', () => {
         // Bloquear selectores durante la rutina
         selectNivel.disabled = true;
         selectCiclos.disabled = true;
-        
+
         btnIniciarHipo.disabled = true;
         btnPausarHipo.disabled = false;
-        
+
         // Si está en 0 o no se ha iniciado, cargar configuración
         if (tiempoRestanteHipo === 0 || displayHipo.textContent === "00:00") {
             fasesActivas = rutinasHipopresivas[selectNivel.value];
@@ -316,12 +316,12 @@ if(btnIniciarHipo) {
             tiempoRestanteHipo = fasesActivas[faseActualIdx].seg;
             actualizarUIHipo();
         }
-        
+
         timerHipo = setInterval(cicloTemporizador, 1000);
     });
 }
 
-if(btnPausarHipo) {
+if (btnPausarHipo) {
     btnPausarHipo.addEventListener('click', () => {
         clearInterval(timerHipo);
         btnIniciarHipo.disabled = false;
@@ -329,13 +329,14 @@ if(btnPausarHipo) {
     });
 }
 
-if(btnReiniciarHipo) {
+if (btnReiniciarHipo) {
     btnReiniciarHipo.addEventListener('click', resetearEstadoHipo);
 }
 
 // Inicializar variables al cargar la página
-if(selectNivel) resetearEstadoHipo();
-/// ==========================================
+if (selectNivel) resetearEstadoHipo();
+
+// ==========================================
 // 4. REGISTRO DE ACTIVIDAD (CRUD AVANZADO)
 // ==========================================
 const tablaBody = document.querySelector('#herramienta-registro tbody');
@@ -344,32 +345,43 @@ const btnGuardarReg = document.getElementById('btn-guardar-reg');
 
 let editandoID = null;
 
-// Función para renderizar la tabla (Criterio 4: Modularidad)
+// 1. FUNCIÓN PARA EL DASHBOARD 
+const actualizarResumen = () => {
+    const totalRutinas = historialEntrenamientos.length;
+    const totalMinutos = historialEntrenamientos.reduce((acumulador, item) => {
+        const minutos = parseInt(item.duracion) || 0;
+        return acumulador + minutos;
+    }, 0);
+
+    const elRutinas = document.getElementById('resumen-total-rutinas');
+    const elMinutos = document.getElementById('resumen-total-minutos');
+
+    if (elRutinas && elMinutos) {
+        elRutinas.textContent = totalRutinas;
+        elMinutos.textContent = totalMinutos;
+    }
+};
+
+// 2. FUNCIÓN PARA RENDERIZAR LA TABLA
 const renderizarTabla = () => {
-    tablaBody.innerHTML = ''; 
-    
+    actualizarResumen(); // Ahora sí la encuentra
+    tablaBody.innerHTML = '';
+
     historialEntrenamientos.forEach(item => {
         const tr = document.createElement('tr');
-        
-        // --- AQUÍ VA EL BLOQUE DE LA FECHA ---
+
         let fechaFormateada = item.fecha;
         try {
-            // Se crea el objeto fecha asegurando el formato ISO para evitar desfases
-            const fechaObj = new Date(item.fecha + 'T00:00:00'); 
-            
-            // Se formatea a estilo: "lunes, 29 de marzo"
-            fechaFormateada = fechaObj.toLocaleDateString('es-CL', { 
-                weekday: 'long', 
-                day: 'numeric', 
-                month: 'long' 
+            const fechaObj = new Date(item.fecha + 'T00:00:00');
+            fechaFormateada = fechaObj.toLocaleDateString('es-CL', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long'
             });
-            
-            // Capitalizamos la primera letra
             fechaFormateada = fechaFormateada.charAt(0).toUpperCase() + fechaFormateada.slice(1);
-        } catch(e) {
+        } catch (e) {
             console.error("Error al formatear fecha:", e);
         }
-        // -------------------------------------
 
         tr.innerHTML = `
             <td class="ps-4">
@@ -384,13 +396,11 @@ const renderizarTabla = () => {
             </td>
         `;
 
-        // Inyectamos los datos de forma segura
         tr.querySelector('.text-name').textContent = item.actividad;
-        tr.querySelector('.text-date').textContent = fechaFormateada; // Usamos la variable que acabamos de crear
+        tr.querySelector('.text-date').textContent = fechaFormateada; 
         tr.querySelector('.extra-info').textContent = `${item.categoria} | Int: ${item.intensidad}/10`;
         tr.querySelector('.text-dur').textContent = item.duracion;
 
-        // Asignamos los eventos a los botones
         tr.querySelector('.btn-edit').onclick = () => cargarParaEditar(item.id);
         tr.querySelector('.btn-delete').onclick = () => confirmarEliminacion(item.id);
 
@@ -398,10 +408,10 @@ const renderizarTabla = () => {
     });
 };
 
-// Cargar datos al formulario para editar
+// 3. FUNCIONES DE EDICIÓN Y ELIMINACIÓN
 const cargarParaEditar = (id) => {
     const item = historialEntrenamientos.find(i => i.id === id);
-    
+
     document.getElementById('reg-actividad').value = item.actividad;
     document.getElementById('reg-duracion').value = item.duracion;
     document.getElementById('reg-fecha').value = item.fecha;
@@ -411,26 +421,68 @@ const cargarParaEditar = (id) => {
     editandoID = id;
     btnGuardarReg.textContent = "Guardar Cambios";
     btnGuardarReg.className = "btn btn-warning btn-sm w-100 fw-bold shadow-sm rounded-pill py-2";
-    
-    // Scroll suave hacia el formulario
+
     document.getElementById('herramienta-registro').scrollIntoView({ behavior: 'smooth' });
 };
 
-// Modal seguro para eliminar
-const confirmarEliminacion = (id) => {
-    // Aquí sí es útil un modal nativo o uno personalizado. Usaremos el nativo por ahora para bloquear la acción destructiva.
-    if(confirm("¿Estás segura de que deseas eliminar permanentemente este registro? Esta acción no se puede deshacer.")) {
-        historialEntrenamientos = historialEntrenamientos.filter(i => i.id !== id);
-        renderizarTabla();
-    }
+// ==========================================
+// 4.1. LÓGICA DE ELIMINACIÓN ESTILIZADA (PROMISES)
+// ==========================================
+
+// A. Función reutilizable que muestra el modal y devuelve una Promesa (Criterio 4)
+const mostrarModalConfirmacion = () => {
+    return new Promise((resolve) => {
+        // 1. Obtener elementos
+        const modalElement = document.getElementById('modal-confirmar-borrado');
+        const btnAceptar = modalElement.querySelector('.btn-aceptar');
+        const btnCancelar = modalElement.querySelector('.btn-cancelar');
+
+        // 2. Crear la instancia de Bootstrap
+        const bsModal = new bootstrap.Modal(modalElement);
+
+        // 3. Manejar eventos de clics
+        const alAceptar = () => {
+            bsModal.hide();
+            modalElement.removeEventListener('hidden.bs.modal', alCancelar); // Limpiar listener
+            resolve(true); // Usuario quiere borrar
+        };
+
+        const alCancelar = () => {
+            resolve(false); // Usuario canceló (clic en botón, X o fuera)
+        };
+
+        // Asignar clics únicos (se limpian solos al ocultar el modal por diseño de la Promesa)
+        btnAceptar.onclick = alAceptar;
+        
+        // El evento de Bootstrap 'hidden.bs.modal' atrapa cualquier forma de cerrar
+        modalElement.addEventListener('hidden.bs.modal', alCancelar, { once: true });
+
+        // 4. Mostrar
+        bsModal.show();
+    });
 };
 
-// Lógica de validación y guardado
+// B. Función principal de eliminación actualizada (Criterio 3 - DOM Asíncrono)
+const confirmarEliminacion = async (id) => {
+    // 1. Llamamos a nuestra función personalizada y ESPERAMOS (await) la respuesta
+    // La ejecución del código se detiene aquí hasta que el usuario decida
+    const quiereBorrar = await mostrarModalConfirmacion();
+
+    // 2. Actuamos según la decisión
+    if (quiereBorrar) {
+        // Proceder con el borrado en el arreglo
+        historialEntrenamientos = historialEntrenamientos.filter(i => i.id !== id);
+        // Actualizar la interfaz
+        renderizarTabla();
+    }
+    // Si es false (quiereBorrar), no hacemos nada y el modal simplemente se cierra.
+};
+
+// 4. LÓGICA DE VALIDACIÓN Y GUARDADO
 if (formRegistro) {
     formRegistro.addEventListener('submit', (e) => {
         e.preventDefault();
-        
-        // Limpiamos errores previos (reutilizamos la función de la calculadora)
+
         const inputsInvalidos = formRegistro.querySelectorAll('.is-invalid');
         inputsInvalidos.forEach(input => input.classList.remove('is-invalid'));
 
@@ -448,7 +500,6 @@ if (formRegistro) {
         const cat = catInput.value;
         const int = parseInt(intInput.value);
 
-        // Validaciones estrictas con topes lógicos
         if (act.length < 3 || act.length > 40) {
             mostrarErrorInput('reg-actividad', 'Debe tener entre 3 y 40 caracteres.');
             hayErrores = true;
@@ -459,7 +510,6 @@ if (formRegistro) {
             mostrarErrorInput('reg-duracion', 'Formato: "30 min".');
             hayErrores = true;
         } else {
-            // Extraer el número para validar límite máximo (ej. no más de 300 min)
             const minNum = parseInt(dur);
             if (minNum <= 0 || minNum > 300) {
                 mostrarErrorInput('reg-duracion', 'Máximo realista: 300 min.');
@@ -471,10 +521,9 @@ if (formRegistro) {
             mostrarErrorInput('reg-fecha', 'Fecha obligatoria.');
             hayErrores = true;
         } else {
-            // Evitar fechas en el futuro
             const fechaIngresada = new Date(fec);
             const hoy = new Date();
-            hoy.setHours(0,0,0,0); // Normalizar a medianoche
+            hoy.setHours(0, 0, 0, 0); 
             if (fechaIngresada > hoy) {
                 mostrarErrorInput('reg-fecha', 'No puedes registrar al futuro.');
                 hayErrores = true;
@@ -493,7 +542,6 @@ if (formRegistro) {
 
         if (hayErrores) return;
 
-        // Guardar o Actualizar
         if (editandoID) {
             const index = historialEntrenamientos.findIndex(i => i.id === editandoID);
             historialEntrenamientos[index] = { id: editandoID, actividad: act, duracion: dur, fecha: fec, categoria: cat, intensidad: int };
@@ -503,8 +551,11 @@ if (formRegistro) {
         } else {
             historialEntrenamientos.unshift({ id: Date.now(), actividad: act, duracion: dur, fecha: fec, categoria: cat, intensidad: int });
         }
-
+        
         renderizarTabla();
         formRegistro.reset();
     });
 }
+
+// 5. INICIALIZACIÓN
+document.addEventListener('DOMContentLoaded', renderizarTabla);
