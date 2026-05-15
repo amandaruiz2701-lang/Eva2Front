@@ -38,7 +38,24 @@ const mostrarAlerta = (titulo, mensaje, tipo = 'danger') => {
     modalInstance.show();
 };
 let historialEntrenamientos = [
-    { id: 1, actividad: "Fuerza Tren Inferior", duracion: "45 min", fecha: "2026-03-29", estado: "Completado" }
+    { 
+        id: 1, 
+        actividad: "Fuerza Tren Inferior", 
+        duracion: "45 min", 
+        fecha: "2026-03-29", 
+        categoria: "Fuerza", 
+        intensidad: 8, 
+        estado: "Completado" 
+    },
+    { 
+        id: 2, 
+        actividad: "Hipopresivos Nivel 1", 
+        duracion: "15 min", 
+        fecha: "2026-03-30", 
+        categoria: "Hipopresivos", 
+        intensidad: 6, 
+        estado: "Completado" 
+    }
 ];
 
 const sanitizar = (texto) => {
@@ -160,158 +177,334 @@ if (kcalForm) {
 }
 
 // ==========================================
-// 3. TEMPORIZADOR HIPOPRESIVOS (CORREGIDO)
+// 3. TEMPORIZADOR HIPOPRESIVOS (MÁQUINA DE ESTADOS)
 // ==========================================
-let timerInterval;
-const display = document.getElementById('tiempo-display');
-const faseBadge = document.getElementById('fase-actual');
-const btnIniciar = document.querySelector('#herramienta-hipopresivos .btn-primary');
-const btnPausa = document.querySelector('#herramienta-hipopresivos .btn-outline-primary');
-const btnReiniciar = document.querySelector('#herramienta-hipopresivos .text-muted');
 
-const fases = [
-    { nombre: "Inhalación", seg: 2, color: "#D81B60" },
-    { nombre: "Exhalación", seg: 4, color: "#6A1B9A" },
-    { nombre: "Apnea", seg: 10, color: "#4A4A4A" }
-];
+// Estructura de datos dinámica según dificultad (Criterio 2)
+const rutinasHipopresivas = {
+    principiante: [
+        { nombre: "Inhalación", seg: 3, color: "#0dcaf0", texto: "Abre tus costillas lateralmente" },
+        { nombre: "Exhalación", seg: 6, color: "#6A1B9A", texto: "Suelta el aire como empañando un vidrio" },
+        { nombre: "Apnea", seg: 10, color: "#D81B60", texto: "¡Vacío abdominal! Mantén la postura" }
+    ],
+    intermedio: [
+        { nombre: "Inhalación", seg: 4, color: "#0dcaf0", texto: "Abre tus costillas lateralmente" },
+        { nombre: "Exhalación", seg: 8, color: "#6A1B9A", texto: "Suelta el aire lentamente" },
+        { nombre: "Apnea", seg: 15, color: "#D81B60", texto: "¡Vacío abdominal profundo!" }
+    ],
+    avanzado: [
+        { nombre: "Inhalación", seg: 5, color: "#0dcaf0", texto: "Expansión torácica máxima" },
+        { nombre: "Exhalación", seg: 10, color: "#6A1B9A", texto: "Vaciado pulmonar completo" },
+        { nombre: "Apnea", seg: 20, color: "#D81B60", texto: "¡Apertura costal sin aire!" }
+    ]
+};
 
+// Variables de Estado
+let timerHipo;
 let faseActualIdx = 0;
-let tiempoRestante = 0;
+let tiempoRestanteHipo = 0;
+let cicloActual = 1;
+let totalCiclos = 3;
+let fasesActivas = [];
 
-function actualizarUI() {
-    display.textContent = `00:${tiempoRestante < 10 ? '0' : ''}${tiempoRestante}`;
-    faseBadge.textContent = fases[faseActualIdx].nombre;
-    faseBadge.style.backgroundColor = fases[faseActualIdx].color;
+// Elementos del DOM
+const displayHipo = document.getElementById('tiempo-display');
+const badgeFase = document.getElementById('fase-actual');
+const txtInstruccion = document.getElementById('instruccion-fase');
+const txtCiclo = document.getElementById('ciclo-actual');
+const barraProgreso = document.getElementById('barra-progreso');
+
+const selectNivel = document.getElementById('hipo-nivel');
+const selectCiclos = document.getElementById('hipo-ciclos');
+const btnIniciarHipo = document.getElementById('btn-iniciar-hipo');
+const btnPausarHipo = document.getElementById('btn-pausar-hipo');
+const btnReiniciarHipo = document.getElementById('btn-reiniciar-hipo');
+
+// Función principal de actualización UI (Criterio 3)
+const actualizarUIHipo = () => {
+    // Formato de tiempo "00:00"
+    displayHipo.textContent = `00:${tiempoRestanteHipo < 10 ? '0' : ''}${tiempoRestanteHipo}`;
+    
+    const faseObj = fasesActivas[faseActualIdx];
+    
+    // Cambios visuales dinámicos
+    badgeFase.textContent = faseObj.nombre;
+    badgeFase.style.backgroundColor = faseObj.color;
+    badgeFase.style.color = "#fff";
+    displayHipo.style.color = faseObj.color; // El número cambia de color
+    txtInstruccion.textContent = faseObj.texto;
+    txtCiclo.textContent = `Ciclo: ${cicloActual} / ${totalCiclos}`;
+    
+    // Cálculo de la barra de progreso
+    const porcentaje = ((faseObj.seg - tiempoRestanteHipo) / faseObj.seg) * 100;
+    barraProgreso.style.width = `${porcentaje}%`;
+    barraProgreso.style.backgroundColor = faseObj.color;
+};
+
+// Lógica del motor del temporizador
+const cicloTemporizador = () => {
+    tiempoRestanteHipo--;
+    
+    // Transición de fase o ciclo
+    if (tiempoRestanteHipo < 0) {
+        faseActualIdx++;
+        
+        // Si terminamos las 3 fases (Inhala, Exhala, Apnea)
+        if (faseActualIdx >= fasesActivas.length) {
+            faseActualIdx = 0;
+            cicloActual++;
+            
+            // Si terminamos todos los ciclos
+            if (cicloActual > totalCiclos) {
+                terminarRutina();
+                return;
+            }
+        }
+        tiempoRestanteHipo = fasesActivas[faseActualIdx].seg;
+    }
+    actualizarUIHipo();
+};
+
+const terminarRutina = () => {
+    clearInterval(timerHipo);
+    mostrarAlerta("¡Rutina Completada!", `Has completado ${totalCiclos} ciclos exitosamente. No olvides registrarlo en tu historial.`, "success"); // Reutilizamos tu función de alerta
+    resetearEstadoHipo();
+};
+
+const resetearEstadoHipo = () => {
+    clearInterval(timerHipo);
+    const nivelSeleccionado = selectNivel.value;
+    fasesActivas = rutinasHipopresivas[nivelSeleccionado];
+    totalCiclos = parseInt(selectCiclos.value);
+    
+    faseActualIdx = 0;
+    cicloActual = 1;
+    tiempoRestanteHipo = fasesActivas[0].seg;
+    
+    btnIniciarHipo.disabled = false;
+    btnPausarHipo.disabled = true;
+    
+    // Restablecer estilos a estado inactivo
+    displayHipo.style.color = "var(--flor-oscura)";
+    badgeFase.style.backgroundColor = "var(--flor-pastel)";
+    badgeFase.style.color = "var(--flor-oscura)";
+    badgeFase.textContent = "Preparación";
+    txtInstruccion.textContent = "Configura tu rutina y presiona iniciar.";
+    txtCiclo.textContent = `Ciclo: 0 / ${totalCiclos}`;
+    displayHipo.textContent = "00:00";
+    barraProgreso.style.width = "0%";
+    
+    // Desbloquear selectores
+    selectNivel.disabled = false;
+    selectCiclos.disabled = false;
+};
+
+// Eventos de los Botones
+if(btnIniciarHipo) {
+    btnIniciarHipo.addEventListener('click', () => {
+        // Bloquear selectores durante la rutina
+        selectNivel.disabled = true;
+        selectCiclos.disabled = true;
+        
+        btnIniciarHipo.disabled = true;
+        btnPausarHipo.disabled = false;
+        
+        // Si está en 0 o no se ha iniciado, cargar configuración
+        if (tiempoRestanteHipo === 0 || displayHipo.textContent === "00:00") {
+            fasesActivas = rutinasHipopresivas[selectNivel.value];
+            totalCiclos = parseInt(selectCiclos.value);
+            tiempoRestanteHipo = fasesActivas[faseActualIdx].seg;
+            actualizarUIHipo();
+        }
+        
+        timerHipo = setInterval(cicloTemporizador, 1000);
+    });
 }
 
-btnIniciar.onclick = () => {
-    btnIniciar.disabled = true;
-    btnPausa.disabled = false;
-    if (tiempoRestante <= 0) {
-        faseActualIdx = 0;
-        tiempoRestante = fases[faseActualIdx].seg;
-    }
+if(btnPausarHipo) {
+    btnPausarHipo.addEventListener('click', () => {
+        clearInterval(timerHipo);
+        btnIniciarHipo.disabled = false;
+        btnPausarHipo.disabled = true;
+    });
+}
 
-    timerInterval = setInterval(() => {
-        tiempoRestante--;
-        if (tiempoRestante < 0) {
-            faseActualIdx = (faseActualIdx + 1) % fases.length;
-            tiempoRestante = fases[faseActualIdx].seg;
-        }
-        actualizarUI();
-    }, 1000);
-};
+if(btnReiniciarHipo) {
+    btnReiniciarHipo.addEventListener('click', resetearEstadoHipo);
+}
 
-btnPausa.onclick = () => {
-    clearInterval(timerInterval);
-    btnIniciar.disabled = false;
-    btnPausa.disabled = true;
-};
-
-btnReiniciar.onclick = () => {
-    clearInterval(timerInterval);
-    tiempoRestante = 0;
-    faseActualIdx = 0;
-    actualizarUI();
-    btnIniciar.disabled = false;
-};
-
-// ==========================================
+// Inicializar variables al cargar la página
+if(selectNivel) resetearEstadoHipo();
+/// ==========================================
 // 4. REGISTRO DE ACTIVIDAD (CRUD AVANZADO)
 // ==========================================
 const tablaBody = document.querySelector('#herramienta-registro tbody');
-const formRegistro = document.querySelector('#herramienta-registro form');
-const btnAccion = document.querySelector('#herramienta-registro button'); // El botón "Añadir"
+const formRegistro = document.getElementById('form-registro');
+const btnGuardarReg = document.getElementById('btn-guardar-reg');
 
-let editandoID = null; // Para saber si estamos editando o creando
+let editandoID = null;
 
-// Función de validación avanzada (Criterio 1)
-const validarDatos = (act, dur, fec, cat, int) => {
-    const durRegex = /^\d+\s?min$/; // Valida formatos como "30min" o "45 min"
-
-    if (!act || act.length < 3) return "El nombre debe tener al menos 3 caracteres.";
-    if (!durRegex.test(dur)) return "La duración debe ser un número seguido de 'min' (ej: 20 min).";
-    if (!fec) return "La fecha es obligatoria.";
-    if (!cat) return "Debes seleccionar una categoría.";
-    if (int < 1 || int > 10) return "La intensidad debe estar entre 1 y 10.";
-
-    return null; // Todo correcto
-};
-
-const renderizarTabla = (datosFiltrados = historialEntrenamientos) => {
-    tablaBody.innerHTML = '';
-
-    datosFiltrados.forEach(item => {
+// Función para renderizar la tabla (Criterio 4: Modularidad)
+const renderizarTabla = () => {
+    tablaBody.innerHTML = ''; 
+    
+    historialEntrenamientos.forEach(item => {
         const tr = document.createElement('tr');
+        
+        // --- AQUÍ VA EL BLOQUE DE LA FECHA ---
+        let fechaFormateada = item.fecha;
+        try {
+            // Se crea el objeto fecha asegurando el formato ISO para evitar desfases
+            const fechaObj = new Date(item.fecha + 'T00:00:00'); 
+            
+            // Se formatea a estilo: "lunes, 29 de marzo"
+            fechaFormateada = fechaObj.toLocaleDateString('es-CL', { 
+                weekday: 'long', 
+                day: 'numeric', 
+                month: 'long' 
+            });
+            
+            // Capitalizamos la primera letra
+            fechaFormateada = fechaFormateada.charAt(0).toUpperCase() + fechaFormateada.slice(1);
+        } catch(e) {
+            console.error("Error al formatear fecha:", e);
+        }
+        // -------------------------------------
 
-        // Usamos textContent en nodos hijos para máxima seguridad (Criterio 1)
         tr.innerHTML = `
             <td class="ps-4">
-                <div class="fw-bold text-name"></div>
+                <div class="fw-bold text-name text-dark-fusion"></div>
                 <small class="text-muted text-date"></small>
-                <div class="badge bg-light text-dark border extra-info" style="font-size: 0.7rem"></div>
+                <div class="badge bg-light text-dark border extra-info mt-1" style="font-size: 0.7rem"></div>
             </td>
-            <td class="text-muted small text-dur"></td>
-            <td class="text-center">
-                <button class="btn btn-sm btn-outline-info btn-edit"><i class="bi bi-pencil"></i></button>
-                <button class="btn btn-sm btn-outline-danger btn-delete"><i class="bi bi-trash"></i></button>
+            <td class="text-muted small text-dur align-middle"></td>
+            <td class="text-center align-middle">
+                <button class="btn btn-sm btn-outline-info btn-edit me-1" aria-label="Editar"><i class="bi bi-pencil"></i></button>
+                <button class="btn btn-sm btn-outline-danger btn-delete" aria-label="Eliminar"><i class="bi bi-trash"></i></button>
             </td>
         `;
 
+        // Inyectamos los datos de forma segura
         tr.querySelector('.text-name').textContent = item.actividad;
-        tr.querySelector('.text-date').textContent = item.fecha;
+        tr.querySelector('.text-date').textContent = fechaFormateada; // Usamos la variable que acabamos de crear
         tr.querySelector('.extra-info').textContent = `${item.categoria} | Int: ${item.intensidad}/10`;
         tr.querySelector('.text-dur').textContent = item.duracion;
 
-        // Eventos de botones
+        // Asignamos los eventos a los botones
         tr.querySelector('.btn-edit').onclick = () => cargarParaEditar(item.id);
-        tr.querySelector('.btn-delete').onclick = () => eliminarRegistro(item.id);
+        tr.querySelector('.btn-delete').onclick = () => confirmarEliminacion(item.id);
 
         tablaBody.appendChild(tr);
     });
 };
 
-// Cargar datos en el formulario para editar
+// Cargar datos al formulario para editar
 const cargarParaEditar = (id) => {
     const item = historialEntrenamientos.find(i => i.id === id);
-    const inputs = formRegistro.querySelectorAll('input, select');
-
-    inputs[0].value = item.actividad;
-    inputs[1].value = item.duracion;
-    inputs[2].value = item.fecha;
-    // (Asegúrate de haber añadido los inputs de categoría e intensidad al HTML)
-    if (inputs[3]) inputs[3].value = item.categoria;
-    if (inputs[4]) inputs[4].value = item.intensidad;
+    
+    document.getElementById('reg-actividad').value = item.actividad;
+    document.getElementById('reg-duracion').value = item.duracion;
+    document.getElementById('reg-fecha').value = item.fecha;
+    document.getElementById('reg-categoria').value = item.categoria;
+    document.getElementById('reg-intensidad').value = item.intensidad;
 
     editandoID = id;
-    btnAccion.textContent = "Guardar Cambios";
-    btnAccion.className = "btn btn-warning btn-sm w-100 fw-bold shadow-sm rounded-pill py-2";
-    window.location.hash = "#herramienta-registro"; // Scroll suave al form
+    btnGuardarReg.textContent = "Guardar Cambios";
+    btnGuardarReg.className = "btn btn-warning btn-sm w-100 fw-bold shadow-sm rounded-pill py-2";
+    
+    // Scroll suave hacia el formulario
+    document.getElementById('herramienta-registro').scrollIntoView({ behavior: 'smooth' });
 };
 
-btnAccion.onclick = (e) => {
-    e.preventDefault();
-    const inputs = formRegistro.querySelectorAll('input, select');
-    const [act, dur, fec, cat, int] = Array.from(inputs).map(i => i.value);
-
-    const error = validarDatos(act, dur, fec, cat, int);
-    if (error) {
-        mostrarAlerta("Error de Validación", error, "danger");
-        return;
+// Modal seguro para eliminar
+const confirmarEliminacion = (id) => {
+    // Aquí sí es útil un modal nativo o uno personalizado. Usaremos el nativo por ahora para bloquear la acción destructiva.
+    if(confirm("¿Estás segura de que deseas eliminar permanentemente este registro? Esta acción no se puede deshacer.")) {
+        historialEntrenamientos = historialEntrenamientos.filter(i => i.id !== id);
+        renderizarTabla();
     }
-
-    if (editandoID) {
-        // Actualizar existente
-        const index = historialEntrenamientos.findIndex(i => i.id === editandoID);
-        historialEntrenamientos[index] = { ...historialEntrenamientos[index], actividad: act, duracion: dur, fecha: fec, categoria: cat, intensidad: int };
-        editandoID = null;
-        btnAccion.textContent = "Añadir";
-        btnAccion.className = "btn btn-primary btn-sm w-100 fw-bold shadow-sm rounded-pill py-2";
-    } else {
-        // Crear nuevo
-        historialEntrenamientos.unshift({ id: Date.now(), actividad: act, duracion: dur, fecha: fec, categoria: cat, intensidad: int });
-    }
-
-    renderizarTabla();
-    formRegistro.reset();
 };
+
+// Lógica de validación y guardado
+if (formRegistro) {
+    formRegistro.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        // Limpiamos errores previos (reutilizamos la función de la calculadora)
+        const inputsInvalidos = formRegistro.querySelectorAll('.is-invalid');
+        inputsInvalidos.forEach(input => input.classList.remove('is-invalid'));
+
+        let hayErrores = false;
+
+        const actInput = document.getElementById('reg-actividad');
+        const durInput = document.getElementById('reg-duracion');
+        const fecInput = document.getElementById('reg-fecha');
+        const catInput = document.getElementById('reg-categoria');
+        const intInput = document.getElementById('reg-intensidad');
+
+        const act = actInput.value.trim();
+        const dur = durInput.value.trim();
+        const fec = fecInput.value;
+        const cat = catInput.value;
+        const int = parseInt(intInput.value);
+
+        // Validaciones estrictas con topes lógicos
+        if (act.length < 3 || act.length > 40) {
+            mostrarErrorInput('reg-actividad', 'Debe tener entre 3 y 40 caracteres.');
+            hayErrores = true;
+        }
+
+        const durRegex = /^\d+\s?min$/;
+        if (!durRegex.test(dur)) {
+            mostrarErrorInput('reg-duracion', 'Formato: "30 min".');
+            hayErrores = true;
+        } else {
+            // Extraer el número para validar límite máximo (ej. no más de 300 min)
+            const minNum = parseInt(dur);
+            if (minNum <= 0 || minNum > 300) {
+                mostrarErrorInput('reg-duracion', 'Máximo realista: 300 min.');
+                hayErrores = true;
+            }
+        }
+
+        if (!fec) {
+            mostrarErrorInput('reg-fecha', 'Fecha obligatoria.');
+            hayErrores = true;
+        } else {
+            // Evitar fechas en el futuro
+            const fechaIngresada = new Date(fec);
+            const hoy = new Date();
+            hoy.setHours(0,0,0,0); // Normalizar a medianoche
+            if (fechaIngresada > hoy) {
+                mostrarErrorInput('reg-fecha', 'No puedes registrar al futuro.');
+                hayErrores = true;
+            }
+        }
+
+        if (!cat) {
+            mostrarErrorInput('reg-categoria', 'Selecciona una.');
+            hayErrores = true;
+        }
+
+        if (!int || int < 1 || int > 10) {
+            mostrarErrorInput('reg-intensidad', 'Valor de 1 a 10.');
+            hayErrores = true;
+        }
+
+        if (hayErrores) return;
+
+        // Guardar o Actualizar
+        if (editandoID) {
+            const index = historialEntrenamientos.findIndex(i => i.id === editandoID);
+            historialEntrenamientos[index] = { id: editandoID, actividad: act, duracion: dur, fecha: fec, categoria: cat, intensidad: int };
+            editandoID = null;
+            btnGuardarReg.textContent = "Añadir Registro";
+            btnGuardarReg.className = "btn btn-primary btn-sm w-100 fw-bold shadow-sm rounded-pill py-2";
+        } else {
+            historialEntrenamientos.unshift({ id: Date.now(), actividad: act, duracion: dur, fecha: fec, categoria: cat, intensidad: int });
+        }
+
+        renderizarTabla();
+        formRegistro.reset();
+    });
+}
