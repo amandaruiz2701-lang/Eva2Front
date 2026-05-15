@@ -174,73 +174,132 @@
             <div class="container py-4">
                 <div class="row align-items-center g-5">
 
-                    <div class="col-lg-5">
-                        <span class="badge bg-fusion text-white rounded-pill px-3 py-2 mb-3">Herramienta 01</span>
-                        <h2 class="display-6 fw-bold text-dark-fusion mb-4">Calculadora de Gasto Energético</h2>
-                        <p class="lead text-muted mb-4">
+                    <div class="col-lg-5 pe-lg-5">
+                        <span class="badge bg-dark text-white rounded-pill px-3 py-2 mb-4 shadow-sm"
+                            style="letter-spacing: 1px;">
+                            Herramienta 01
+                        </span>
+
+                        <h2 class="display-5 fw-bolder mb-4" style="color: var(--flor-oscura); line-height: 1.1;">
+                            Calculadora de <br>
+                            <span style="color: var(--flor-vibrante);">Gasto Energético</span>
+                        </h2>
+
+                        <p class="lead text-muted mb-5 lh-base">
                             Descubre exactamente cuántas calorías necesita tu cuerpo para funcionar, mantenerse o
                             transformarse.
                         </p>
-                        <h4 class="h6 fw-bold mb-3"><i class="bi bi-info-circle text-primary-fusion me-2"></i>¿Cómo
-                            usarla?</h4>
-                        <ul class="list-unstyled text-muted small">
-                            <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i> <strong>Paso
-                                    1:</strong> Ingresa tus datos biométricos reales.</li>
-                            <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i> <strong>Paso
-                                    2:</strong> Sé honesta con tu nivel de actividad física.</li>
-                            <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i> <strong>Paso
-                                    3:</strong> Usa el resultado como tu límite diario para estructurar tus comidas.
-                            </li>
-                        </ul>
+
+                        <div class="bg-white p-4 rounded-4 shadow-sm border-start border-4"
+                            style="border-color: var(--flor-vibrante) !important;">
+                            <h4 class="h6 fw-bold mb-3 text-dark">
+                                <i class="bi bi-info-circle-fill me-2" style="color: var(--flor-vibrante);"></i>¿Cómo
+                                usarla?
+                            </h4>
+                            <ul class="list-unstyled text-muted small mb-0">
+                                <li class="mb-3 d-flex align-items-start">
+                                    <i class="bi bi-check-circle-fill me-2 mt-1"
+                                        style="color: var(--flor-vibrante);"></i>
+                                    <span><strong>Paso 1:</strong> Ingresa tus datos biométricos reales y tu
+                                        sexo.</span>
+                                </li>
+                                <li class="mb-3 d-flex align-items-start">
+                                    <i class="bi bi-check-circle-fill me-2 mt-1"
+                                        style="color: var(--flor-vibrante);"></i>
+                                    <span><strong>Paso 2:</strong> Sé honesta con tu nivel de actividad física.</span>
+                                </li>
+                                <li class="d-flex align-items-start">
+                                    <i class="bi bi-check-circle-fill me-2 mt-1"
+                                        style="color: var(--flor-vibrante);"></i>
+                                    <span><strong>Paso 3:</strong> Usa el resultado como punto de partida para tu
+                                        mantenimiento.</span>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
 
                     <div class="col-lg-7">
                         <div class="card shadow-lg border-0 rounded-4 p-4 p-md-5 bg-white">
-                            <form id="kcal-form" aria-labelledby="form-title">
+                            <form id="kcal-form" aria-labelledby="form-title" novalidate>
                                 <h3 id="form-title" class="visually-hidden">Datos Biométricos</h3>
 
                                 <fieldset class="mb-4">
                                     <legend class="h6 mb-3 text-uppercase fw-bold text-muted border-bottom pb-2">Tus
                                         Medidas</legend>
                                     <div class="row g-3">
-                                        <div class="col-md-4">
+                                        <div class="col-md-12 mb-2 position-relative">
+                                            <label for="user-gender" class="form-label small fw-bold">Sexo
+                                                Biológico</label>
+                                            <select id="user-gender"
+                                                class="form-select form-select-lg bg-light border-0" required>
+                                                <option value="" disabled selected>Selecciona...</option>
+                                                <option value="female">Femenino</option>
+                                                <option value="male">Masculino</option>
+                                            </select>
+                                            <div class="invalid-feedback"></div>
+                                        </div>
+
+                                        <div class="col-md-4 position-relative">
                                             <label for="user-weight" class="form-label small fw-bold">Peso (kg)</label>
                                             <input type="number" id="user-weight"
-                                                class="form-control form-control-lg bg-light border-0"
-                                                placeholder="Ej: 70" required min="30" step="0.1">
+                                                class="form-control form-control-lg bg-light border-0" placeholder="70"
+                                                required min="30" max="300" step="0.1">
+                                            <div class="invalid-feedback"></div>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-4 position-relative">
                                             <label for="user-height" class="form-label small fw-bold">Altura
                                                 (cm)</label>
                                             <input type="number" id="user-height"
-                                                class="form-control form-control-lg bg-light border-0"
-                                                placeholder="Ej: 165" required min="100">
+                                                class="form-control form-control-lg bg-light border-0" placeholder="165"
+                                                required min="100" max="250">
+                                            <div class="invalid-feedback"></div>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-4 position-relative">
                                             <label for="user-age" class="form-label small fw-bold">Edad</label>
                                             <input type="number" id="user-age"
-                                                class="form-control form-control-lg bg-light border-0"
-                                                placeholder="Ej: 32" required min="15">
+                                                class="form-control form-control-lg bg-light border-0" placeholder="32"
+                                                required min="15" max="120">
+                                            <div class="invalid-feedback"></div>
                                         </div>
                                     </div>
                                 </fieldset>
 
-                                <fieldset class="mb-4">
+                                <fieldset class="mb-4 position-relative">
                                     <legend class="h6 mb-3 text-uppercase fw-bold text-muted border-bottom pb-2">
                                         Actividad Diaria</legend>
                                     <select id="activity-level" class="form-select form-select-lg bg-light border-0"
-                                        required aria-label="Selecciona tu nivel de actividad">
+                                        required>
                                         <option value="" disabled selected>Selecciona tu nivel...</option>
                                         <option value="sedentary">Sedentario (Oficina/poco ejercicio)</option>
                                         <option value="moderate">Moderado (3-5 días/semana)</option>
                                         <option value="intense">Intenso (Atleta/6-7 días)</option>
                                     </select>
+                                    <div class="invalid-feedback"></div>
                                 </fieldset>
-
+                                <fieldset class="mb-4 position-relative">
+                                    <legend class="h6 mb-3 text-uppercase fw-bold text-muted border-bottom pb-2">Tu
+                                        Objetivo</legend>
+                                    <select id="user-goal" class="form-select form-select-lg bg-light border-0"
+                                        required>
+                                        <option value="" disabled selected>Selecciona tu meta...</option>
+                                        <option value="maintain">Mantenimiento (Quedarme como estoy)</option>
+                                        <option value="deficit">Déficit (Perder grasa / Definir)</option>
+                                        <option value="surplus">Volumen (Ganar músculo / Fuerza)</option>
+                                    </select>
+                                    <div class="invalid-feedback"></div>
+                                </fieldset>
                                 <button type="submit"
-                                    class="btn btn-fusion w-100 fw-bold py-3 text-uppercase tracking-wide shadow-sm">
+                                    class="btn btn-primary w-100 fw-bold py-3 text-uppercase tracking-wide shadow rounded-pill">
                                     Calcular Mis Calorías
                                 </button>
+                                <div class="text-center">
+                                    <p class="text-muted" style="font-size: 0.75rem; line-height: 1.3;">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        <em>Este cálculo es una estimación referencial basada en fórmulas matemáticas.
+                                            Para un plan nutricional seguro y personalizado, consulta siempre con un
+                                            nutricionista o profesional de la salud.</em>
+                                    </p>
+                                </div>
                             </form>
                         </div>
                     </div>
@@ -248,6 +307,7 @@
                 </div>
             </div>
         </section>
+
         <section id="herramienta-hipopresivos" class="py-5 bg-white border-top">
             <div class="container py-4">
                 <div class="row align-items-center g-5">
@@ -265,7 +325,8 @@
                             <li class="mb-2"><i class="bi bi-wind text-info me-2"></i> <strong>Inhalación (2s):</strong>
                                 Abre tus costillas al máximo.</li>
                             <li class="mb-2"><i class="bi bi-arrow-down-circle text-warning me-2"></i>
-                                <strong>Exhalación (4s):</strong> Suelta todo el aire lentamente.</li>
+                                <strong>Exhalación (4s):</strong> Suelta todo el aire lentamente.
+                            </li>
                             <li class="mb-2"><i class="bi bi-pause-circle text-danger me-2"></i> <strong>Apnea
                                     (10s+):</strong> Sin respirar, abre costillas simulando una inhalación falsa
                                 (vacío).</li>
